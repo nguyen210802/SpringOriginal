@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/demo_shop
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password: redisdb
+
+server:
+  port: 8080
+#  servlet:
+#    context-path: /identity
+jwt:
+  signerKey: "xolCXXnMNhOdT3hIZF5LTFM9koeXWe25Q5RzsG4ZU9x70X1WRHB18ymjIxo0/s6w"
