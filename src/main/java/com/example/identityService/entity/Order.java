@@ -1,11 +1,9 @@
 package com.example.identityService.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -27,9 +25,6 @@ public class Order {
 //    @JsonIgnore
     User buyer;
 
-    @Column(nullable = false)
-    LocalDateTime orderDate;
-
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonIgnore
     Set<OrderItem> orderItems;
@@ -37,8 +32,18 @@ public class Order {
     @Column(nullable = false)
     double totalAmount;
 
+    @Column(nullable = false)
+    LocalDateTime createAt;
+
+    LocalDateTime updateAt;
+
     @PrePersist
     private void SetOrderDate(){
-        this.orderDate = LocalDateTime.now();
+        this.createAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void SetUpdateAt(){
+        this.updateAt = LocalDateTime.now();
     }
 }

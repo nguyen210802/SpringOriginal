@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -41,17 +42,18 @@ public class User {
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     Set<Product> products;
-//    Date createAt;
-//    Date updateAt;
+
+    @Column(nullable = false)
+    LocalDateTime createAt;
+    LocalDateTime updateAt;
 //
-//    @PrePersist
-//    public void setCreateAt(){
-//        this.createAt = new Date();
-//        this.updateAt = new Date();
-//    }
-//
-//    @PreUpdate
-//    public void setUpdateAt(){
-//        this.updateAt = new Date();
-//    }
+    @PrePersist
+    public void setCreateAt(){
+        this.createAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void setUpdateAt(){
+        this.updateAt = LocalDateTime.now();
+    }
 }

@@ -41,10 +41,17 @@ public class Product {
     @JsonIgnore
     Set<Comment> comments;
 
+    @Column(nullable = false)
     LocalDateTime createAt;
+    LocalDateTime updateAt;
 
     @PrePersist
     private void setCreateAt(){
         this.createAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void setUpdateAt(){
+        this.updateAt = LocalDateTime.now();
     }
 }

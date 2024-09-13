@@ -12,9 +12,9 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationEvent {
     String channel;
-    String recipient;
+    String email;
     String templateCode;
     Map<String, Object> param;
     String subject;
-    String body;
+    String htmlContent;
 }

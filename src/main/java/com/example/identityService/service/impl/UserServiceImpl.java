@@ -70,9 +70,11 @@ public class UserServiceImpl implements UserService {
 
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .channel("EMAIL")
-                .recipient(request.getEmail())
+                .email(request.getEmail())
+                .subject("CHAO MUNG BAN DEN VOI NGOI NHA CUA NGUYEN")
+                .htmlContent("<P>Ban da dang ky thanh cong tai khoan cua nguyen123.vn. Chuc ban co nhung thoi gian vui ve!</p>")
                 .build();
-//
+
         kafkaTemplate.send("notification-createUser", notificationEvent);
 
         return userMapper.toUserResponse(user);

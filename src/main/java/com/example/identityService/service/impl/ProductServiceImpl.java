@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
 
         Product product = productRepository.findById(id).orElseThrow(
-                () ->new IllegalStateException("Product not exited"));
+                () ->new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
         if(authenticated.getName().equals(product.getSeller().getId())){
             product.setName(update.getName());
