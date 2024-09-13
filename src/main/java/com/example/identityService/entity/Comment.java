@@ -1,24 +1,34 @@
 package com.example.identityService.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "product_id"})})
+
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
+
+    @Column(nullable = false)
     String message;
-    @OneToOne
-    @JoinColumn(name = "product_id")
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     Product product;
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    User user;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    User buyer;
 }

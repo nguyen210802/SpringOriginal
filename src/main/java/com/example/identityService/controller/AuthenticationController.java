@@ -27,7 +27,7 @@ public class AuthenticationController {
         this.map = Map.of("auth", authenticationServiceImpl);
     }
 
-    @PostMapping("/token")
+    @PostMapping("/login")
     public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(map.get("auth").authenticate(request))
@@ -37,11 +37,8 @@ public class AuthenticationController {
     @PostMapping("/introspect")
     public ApiResponse<IntrospectResponse> introspectResponse(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         log.info("introspect: {}", request);
-//        return ApiResponse.<IntrospectResponse>builder()
-//                .result(map.get("auth").introspect(request))
-//                .build();
         return ApiResponse.<IntrospectResponse>builder()
                 .result(map.get("auth").introspect(request))
-                .build(); // For demonstration purposes, we're returning the same response as for token request'
+                .build();
     }
 }

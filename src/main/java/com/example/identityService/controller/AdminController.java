@@ -1,12 +1,15 @@
 package com.example.identityService.controller;
 
 import com.example.identityService.dto.ApiResponse;
+import com.example.identityService.dto.PageResponse;
 import com.example.identityService.dto.request.UserRequest;
 import com.example.identityService.dto.response.UserResponse;
 import com.example.identityService.service.AdminService;
 import com.example.identityService.service.UserService;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.experimental.FieldDefaults;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,11 +26,10 @@ public class AdminController {
     }
 
     @GetMapping("/getAll")
-    public ApiResponse<List<UserResponse>> getUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(map.get("admin").getAll())
+    public ApiResponse<PageResponse<UserResponse>> getUsers(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<UserResponse>>builder()
+                .result(map.get("admin").getAll(page, size))
                 .build();
-//        return map.get("admin").getAll();
     }
 
     @GetMapping()
@@ -35,7 +37,6 @@ public class AdminController {
         return ApiResponse.<UserResponse>builder()
                 .result(map.get("admin").getUserById(id))
                 .build();
-//        return map.get("admin").getUserById(id);
     }
 
     @PutMapping("/update")
@@ -43,7 +44,6 @@ public class AdminController {
         return ApiResponse.<UserResponse>builder()
                 .result(map.get("admin").updateUser(id, request))
                 .build();
-//        return map.get("admin").updateUser(id, request);
     }
 
     @DeleteMapping("/delete")
@@ -51,6 +51,5 @@ public class AdminController {
         return ApiResponse.<String>builder()
                 .result(map.get("admin").deleteUser(id))
                 .build();
-//        return map.get("admin").deleteUser(id);
     }
 }

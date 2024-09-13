@@ -1,6 +1,5 @@
 package com.example.identityService.config;
 
-import io.lettuce.core.dynamic.annotation.Value;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,7 +11,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -21,7 +19,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -33,6 +30,12 @@ import javax.crypto.spec.SecretKeySpec;
 @Slf4j
 public class WebSecurityConfig {
     String SIGNER_KEY = "xolCXXnMNhOdT3hIZF5LTFM9koeXWe25Q5RzsG4ZU9x70X1WRHB18ymjIxo0/s6w";
+
+    String[] PUBLIC_POST = {"/users/registration", "/auth/login", "/auth/introspect"};
+    String[] PUBLIC_GET = {"/users/product",
+            "/users/product/getAll",
+            "/users/product/comment/getAllByProduct",
+            "/users/product/getProducts"};
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -42,30 +45,18 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((request) -> request
-                    .requestMatchers(HttpMethod.POST, "/users/registration").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/token").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/introspect").permitAll()
-                    .requestMatchers("/users/product").permitAll()
-                    .requestMatchers("/users/product/getAll").permitAll()
+                    .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
+                    .requestMatchers(PUBLIC_GET).permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
                 )
-                .formLogin((form) -> form
-                        .loginPage("/login")
-//                        .successHandler(customSuccessHandler())
-                        .permitAll()
+                .oauth2ResourceServer(oath2 ->
+                                oath2.jwt(jwtConfigurer ->
+                                                jwtConfigurer.decoder(jwtDecoder())
+                                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
-                .logout(LogoutConfigurer::permitAll)
-        ;
-
-        http.oauth2ResourceServer(oath2 ->
-                oath2.jwt(jwtConfigurer ->
-                                jwtConfigurer.decoder(jwtDecoder())
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-        );
-
-        http.csrf(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 

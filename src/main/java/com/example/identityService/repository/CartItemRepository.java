@@ -1,12 +1,13 @@
 package com.example.identityService.repository;
 
-import com.example.identityService.entity.Cart;
 import com.example.identityService.entity.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface CartItemRepository extends JpaRepository<CartItem, String> {
-    List<CartItem> findAllByCart(Cart cart);
-    void deleteAllByCart(Cart cart);
+    List<CartItem> findAllByCartId(String cartId);
+    void deleteAllByProduct_Id(String productId);
 }

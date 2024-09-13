@@ -1,12 +1,11 @@
 package com.example.identityService.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
+import java.math.BigDecimal;
 
 @Entity
 @Getter
@@ -15,17 +14,23 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Cart {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
     @JsonIgnore
-    User buyer;
+    Order order;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<CartItem> cartItems;
+    String productId;
+    double productPrice;
+    String linkProduct;
+
+    @Column(nullable = false)
+    int quantity;
+
+    @Column(nullable = false)
+    double price;
 }

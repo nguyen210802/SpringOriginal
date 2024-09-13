@@ -3,7 +3,9 @@ package com.example.identityService.controller;
 import com.example.identityService.dto.ApiResponse;
 import com.example.identityService.dto.request.UserRequest;
 import com.example.identityService.dto.response.UserResponse;
+import com.example.identityService.entity.Cart;
 import com.example.identityService.entity.Product;
+import com.example.identityService.service.CartService;
 import com.example.identityService.service.ProductService;
 import com.example.identityService.service.UserService;
 import lombok.AccessLevel;
@@ -21,8 +23,8 @@ import java.util.Map;
 public class UserController {
     Map<String, Object> map;
 
-    public UserController(UserService userServiceImpl) {
-        this.map = Map.of("user", userServiceImpl);
+    public UserController(UserService userServiceImpl, CartService cartServiceImpl) {
+        this.map = Map.of("user", userServiceImpl, "cart", cartServiceImpl);
     }
 
     @GetMapping("/myInfo")
@@ -31,6 +33,14 @@ public class UserController {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.getMyInfo())
                 .build();
+    }
+
+    @GetMapping("/myCart")
+    public ApiResponse<Cart> getMyCart(){
+        CartService cartService = (CartService) map.get("cart");
+        return ApiResponse.<Cart>builder()
+               .result(cartService.getMyCart())
+               .build();
     }
 
     @PostMapping("/registration")
@@ -57,55 +67,6 @@ public class UserController {
 
         return ApiResponse.<String>builder()
                 .result(userService.deleteUser())
-                .build();
-    }
-
-    //
-    //
-    //
-    //Product
-    //
-    //
-    //
-
-    @GetMapping("/product/getAll")
-    public ApiResponse<List<Product>> getAll(){
-        ProductService productService = (ProductService) map.get("product");
-        return ApiResponse.<List<Product>>builder()
-                .result(productService.getAll())
-                .build();
-    }
-
-    @GetMapping("/product")
-    public ApiResponse<Product> getProductById(@RequestParam String id){
-        ProductService productService = (ProductService) map.get("product");
-        return ApiResponse.<Product>builder()
-                .result(productService.getProductById(id))
-                .build();
-    }
-
-    @PostMapping("/product/create")
-    public ApiResponse<Product> createProduct(@RequestBody Product product){
-        ProductService productService = (ProductService) map.get("product");
-        return ApiResponse.<Product>builder()
-                .result(productService.create(product))
-                .build();
-    }
-
-    @PutMapping("/product/update")
-    public ApiResponse<Product> updateProduct(@RequestParam String id, @RequestBody Product product){
-        log.info("Product update Controller");
-        ProductService productService = (ProductService) map.get("product");
-        return ApiResponse.<Product>builder()
-                .result(productService.update(id, product))
-                .build();
-    }
-
-    @DeleteMapping("/product/delete")
-    public ApiResponse<String> deleteProduct(@RequestParam String id){
-        ProductService productService = (ProductService) map.get("product");
-        return ApiResponse.<String>builder()
-                .result(productService.delete(id))
                 .build();
     }
 }

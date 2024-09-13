@@ -1,5 +1,7 @@
 package com.example.identityService.service.impl;
 
+import com.example.identityService.dto.ApiResponse;
+import com.example.identityService.dto.PageResponse;
 import com.example.identityService.entity.Product;
 import com.example.identityService.exception.AppException;
 import com.example.identityService.exception.ErrorCode;
@@ -11,6 +13,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +30,42 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
     UserRepository userRepository;
     ProductRepository productRepository;
+
+    @Override
+    public PageResponse<Product> getAll(int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Pageable pageable = PageRequest.of(page - 1, size);
+        var pageData = productRepository.findAll(pageable);
+        return PageResponse.<Product>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent())
+                .build();
+    }
+
     @Override
     public Product getProductById(String id) {
         return productRepository.findById(id).orElseThrow();
     }
 
     @Override
-    public List<Product> getAll() {
-        return productRepository.findAll();
+    public PageResponse<Product> getAllMyProduct(int page, int size) {
+        Authentication authenticated = SecurityContextHolder.getContext().getAuthentication();
+        String sellerId = authenticated.getName();
+
+//        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createAt").descending());
+        var pageData = productRepository.findAllBySeller_Id(sellerId, pageable);
+
+        return PageResponse.<Product>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent())
+                .build();
     }
 
     @Override
@@ -38,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
     public Product create(Product product) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
 
-        product.setUser(userRepository.findById(authenticated.getName()).orElseThrow());
+        product.setSeller(userRepository.findById(authenticated.getName()).orElseThrow());
         return productRepository.save(product);
     }
 
@@ -49,10 +84,10 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id).orElseThrow(
                 () ->new IllegalStateException("Product not exited"));
 
-        if(authenticated.getName().equals(product.getUser().getId())){
+        if(authenticated.getName().equals(product.getSeller().getId())){
             product.setName(update.getName());
             product.setImage(update.getImage());
-            product.setDescribe(update.getDescribe());
+            product.setDescription(update.getDescription());
             product.setPrice(update.getPrice());
             return productRepository.save(product);
         }
@@ -68,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id).orElseThrow(
                 () ->new IllegalStateException("Product not exited"));
 
-        if(authenticated.getName().equals(product.getUser().getId())){
+        if(authenticated.getName().equals(product.getSeller().getId())){
             productRepository.deleteById(id);
         }
         else{

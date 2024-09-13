@@ -15,6 +15,4 @@ public class UserResponse {
     String password;
     String email;
     Role role;
-    String createAt;
-    String updateAt;
 }

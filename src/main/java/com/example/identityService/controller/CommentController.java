@@ -1,6 +1,7 @@
 package com.example.identityService.controller;
 
 import com.example.identityService.dto.ApiResponse;
+import com.example.identityService.dto.PageResponse;
 import com.example.identityService.entity.Comment;
 import com.example.identityService.service.CommentService;
 import lombok.AccessLevel;
@@ -23,10 +24,11 @@ public class CommentController {
     }
 
     @GetMapping("/getAllByProduct")
-    public ApiResponse<List<Comment>> getAllByUser(@RequestParam String productId){
+    public ApiResponse<PageResponse<Comment>> getAllByProduct(@RequestParam String productId,
+    @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
         CommentService commentService = (CommentService) map.get("comment");
-        return ApiResponse.<List<Comment>>builder()
-               .result(commentService.getAllByProductId(productId))
+        return ApiResponse.<PageResponse<Comment>>builder()
+               .result(commentService.getAllByProductId(productId, page, size))
                .build();
     }
 

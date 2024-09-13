@@ -3,9 +3,10 @@ package com.example.identityService.service;
 import com.example.identityService.entity.Cart;
 
 public interface CartService{
-    Cart getById(String id);
-    Cart getByUserId(String userId);
-    Cart create(Cart cart);
+    Cart getMyCart();
     Cart update(Cart cartUpdate);
     void delete(String userId);
+
+    Cart addProduct(String productId);
+    Cart reduceProduct(String productId);
 }

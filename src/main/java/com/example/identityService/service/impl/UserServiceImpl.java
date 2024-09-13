@@ -1,5 +1,6 @@
 package com.example.identityService.service.impl;
 
+import com.example.identityService.dto.NotificationEvent;
 import com.example.identityService.dto.request.UserRequest;
 import com.example.identityService.dto.response.UserResponse;
 import com.example.identityService.entity.Cart;
@@ -63,16 +64,16 @@ public class UserServiceImpl implements UserService {
         }
 
         Cart cart = Cart.builder()
-                .user(user)
+                .buyer(user)
                 .build();
         cartRepository.save(cart);
 
-//        NotificationEvent notificationEvent = NotificationEvent.builder()
-//                .channel("EMAIL")
-//                .recipient(request.getEmail())
-//                .build();
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .build();
 //
-//        kafkaTemplate.send("notification-createUser", notificationEvent);
+        kafkaTemplate.send("notification-createUser", notificationEvent);
 
         return userMapper.toUserResponse(user);
     }

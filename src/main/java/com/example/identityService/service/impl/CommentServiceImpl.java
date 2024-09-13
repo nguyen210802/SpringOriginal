@@ -1,5 +1,6 @@
 package com.example.identityService.service.impl;
 
+import com.example.identityService.dto.PageResponse;
 import com.example.identityService.entity.Comment;
 import com.example.identityService.entity.Product;
 import com.example.identityService.entity.User;
@@ -14,6 +15,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +31,34 @@ public class CommentServiceImpl implements CommentService {
     ProductRepository productRepository;
     UserRepository userRepository;
     @Override
-    public List<Comment> getAll() {
-        return commentRepository.findAll();
+    public PageResponse<Comment> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        var pageData = commentRepository.findAll(pageable);
+
+        return PageResponse.<Comment>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent())
+                .build();
     }
 
     @Override
-    public List<Comment> getAllByProductId(String productId) {
-        return commentRepository.findAllByProduct_Id(productId);
+    public PageResponse<Comment> getAllByProductId(String productId, int page, int size) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)
+        );
+        Pageable pageable = PageRequest.of(page - 1, size);
+        var pageData = commentRepository.findAllByProduct_Id(productId, pageable);
+
+        return PageResponse.<Comment>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent())
+                .build();
     }
 
     @Override
@@ -45,7 +69,7 @@ public class CommentServiceImpl implements CommentService {
 
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findById(authenticated.getName()).orElseThrow();
-        comment.setUser(user);
+        comment.setBuyer(user);
 
         comment.setProduct(product);
 
@@ -66,7 +90,7 @@ public class CommentServiceImpl implements CommentService {
         );
         Comment comment = commentRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Comment not found"));
-        if(comment.getUser().getId().equals(user.getId())){
+        if(comment.getBuyer().getId().equals(user.getId())){
             commentRepository.deleteById(id);
             return "Delete successfully";
         }else {

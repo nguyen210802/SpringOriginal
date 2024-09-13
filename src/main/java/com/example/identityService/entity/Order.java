@@ -16,35 +16,29 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Product {
+@Table(name = "orders")
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-     String id;
+    String id;
 
     @ManyToOne
-    @JoinColumn(name = "seller_id", nullable = false)
-    User seller;
+    @JoinColumn(name = "buyer_id", nullable = false)
+//    @JsonIgnore
+    User buyer;
 
     @Column(nullable = false)
-    String name;
+    LocalDateTime orderDate;
 
-    @Lob
-    byte[] image;
-
-    String description;
-    String manufacturer;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore
+    Set<OrderItem> orderItems;
 
     @Column(nullable = false)
-    double price;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<Comment> comments;
-
-    LocalDateTime createAt;
+    double totalAmount;
 
     @PrePersist
-    private void setCreateAt(){
-        this.createAt = LocalDateTime.now();
+    private void SetOrderDate(){
+        this.orderDate = LocalDateTime.now();
     }
 }
