@@ -26,8 +26,3 @@ server:
 #    context-path: /identity
 jwt:
   signerKey: "xolCXXnMNhOdT3hIZF5LTFM9koeXWe25Q5RzsG4ZU9x70X1WRHB18ymjIxo0/s6w"
-
-notification:
-  email:
-    brevo-url: https://api.brevo.com
-    brevo-apikey: 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
