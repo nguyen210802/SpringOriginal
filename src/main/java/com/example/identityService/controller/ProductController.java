@@ -2,6 +2,7 @@ package com.example.identityService.controller;
 
 import com.example.identityService.dto.ApiResponse;
 import com.example.identityService.dto.PageResponse;
+import com.example.identityService.dto.request.ProductRequest;
 import com.example.identityService.entity.Cart;
 import com.example.identityService.entity.Product;
 import com.example.identityService.service.CartService;
@@ -29,7 +30,7 @@ public class ProductController {
     }
 
     @GetMapping("/getAll")
-    public ApiResponse<PageResponse<Product>> getUsers(
+    public ApiResponse<PageResponse<Product>> getAll(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
@@ -59,19 +60,21 @@ public class ProductController {
 
 
     @PostMapping("/create")
-    public ApiResponse<Product> createProduct(@RequestBody Product product){
+    public ApiResponse<Product> createProduct(@RequestBody ProductRequest request){
         ProductService productService = (ProductService) map.get("product");
         return ApiResponse.<Product>builder()
-                .result(productService.create(product))
+                .result(productService.create(request))
                 .build();
+//        log.info("Product Image: {}", request.getImages());
+//        return null;
     }
 
     @PutMapping("/update")
-    public ApiResponse<Product> updateProduct(@RequestParam String id, @RequestBody Product product){
+    public ApiResponse<Product> updateProduct(@RequestParam String id, @RequestBody Product request){
         log.info("Product update Controller");
         ProductService productService = (ProductService) map.get("product");
         return ApiResponse.<Product>builder()
-                .result(productService.update(id, product))
+                .result(productService.update(id, request))
                 .build();
     }
 

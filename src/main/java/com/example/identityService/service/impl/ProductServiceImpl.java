@@ -1,10 +1,12 @@
 package com.example.identityService.service.impl;
 
-import com.example.identityService.dto.ApiResponse;
 import com.example.identityService.dto.PageResponse;
+import com.example.identityService.dto.request.ProductRequest;
 import com.example.identityService.entity.Product;
+import com.example.identityService.entity.ProductImage;
 import com.example.identityService.exception.AppException;
 import com.example.identityService.exception.ErrorCode;
+import com.example.identityService.repository.ProductImageRepository;
 import com.example.identityService.repository.ProductRepository;
 import com.example.identityService.repository.UserRepository;
 import com.example.identityService.service.ProductService;
@@ -13,7 +15,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -30,6 +33,7 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
     UserRepository userRepository;
     ProductRepository productRepository;
+    ProductImageRepository productImageRepository;
 
     @Override
     public PageResponse<Product> getAll(int page, int size) {
@@ -70,10 +74,34 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product create(Product product) {
+    public Product create(ProductRequest request) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
+        Product product = Product.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .manufacturer(request.getManufacturer())
+                .seller(userRepository.findById(authenticated.getName()).orElseThrow())
+                .build();
+        product = productRepository.save(product);
 
-        product.setSeller(userRepository.findById(authenticated.getName()).orElseThrow());
+        if (request.getImages() != null && request.getImages().length > 0) {
+            List<byte[]> imageList = new ArrayList<>();
+            for (String base64Image : request.getImages()) {
+                // Loại bỏ phần đầu của chuỗi base64 nếu có
+                if (base64Image.contains(",")) {
+                    base64Image = base64Image.split(",")[1];
+                }
+                imageList.add(Base64.getDecoder().decode(base64Image));
+            }
+            for (byte[] image : imageList) {
+                ProductImage productImage = productImageRepository.save(ProductImage.builder()
+                       .product(product)
+                       .image(image)
+                       .build());
+            }
+        }
+
         return productRepository.save(product);
     }
 
@@ -86,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
 
         if(authenticated.getName().equals(product.getSeller().getId())){
             product.setName(update.getName());
-            product.setImage(update.getImage());
+            product.setImages(update.getImages());
             product.setDescription(update.getDescription());
             product.setPrice(update.getPrice());
             return productRepository.save(product);

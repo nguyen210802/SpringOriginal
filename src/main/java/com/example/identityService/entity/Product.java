@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -28,8 +27,9 @@ public class Product {
     @Column(nullable = false)
     String name;
 
-    @Lob
-    byte[] image;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<ProductImage> images;
 
     String description;
     String manufacturer;

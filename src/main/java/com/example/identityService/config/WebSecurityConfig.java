@@ -35,7 +35,8 @@ public class WebSecurityConfig {
     String[] PUBLIC_GET = {"/users/product",
             "/users/product/getAll",
             "/users/product/comment/getAllByProduct",
-            "/users/product/getProducts"};
+            "/users/product/getProducts",
+            "/users/product/image/getByProduct"};
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
