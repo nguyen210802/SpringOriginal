@@ -4,6 +4,8 @@ import com.example.identityService.enums.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,4 +17,6 @@ public class UserResponse {
     String password;
     String email;
     Role role;
+    LocalDateTime createAt;
+    LocalDateTime updateAt;
 }

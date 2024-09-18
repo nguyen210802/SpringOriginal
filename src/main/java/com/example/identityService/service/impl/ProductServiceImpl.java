@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -76,12 +77,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Product create(ProductRequest request) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
+        String sellerId = authenticated.getName();
+        HashSet<ProductImage> hashSetImages = new HashSet<>();
         Product product = Product.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .manufacturer(request.getManufacturer())
-                .seller(userRepository.findById(authenticated.getName()).orElseThrow())
+                .seller(userRepository.findById(sellerId).orElseThrow())
                 .build();
         product = productRepository.save(product);
 
@@ -94,13 +97,21 @@ public class ProductServiceImpl implements ProductService {
                 }
                 imageList.add(Base64.getDecoder().decode(base64Image));
             }
+
+            boolean isFirstImage = true;
             for (byte[] image : imageList) {
                 ProductImage productImage = productImageRepository.save(ProductImage.builder()
                        .product(product)
                        .image(image)
+                       .isMainImage(isFirstImage)
                        .build());
+                isFirstImage = false;
+
+                hashSetImages.add(productImage);
             }
         }
+
+        product.setImages(hashSetImages);
 
         return productRepository.save(product);
     }

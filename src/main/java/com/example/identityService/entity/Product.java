@@ -28,7 +28,7 @@ public class Product {
     String name;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+//    @JsonIgnore
     Set<ProductImage> images;
 
     String description;
@@ -38,7 +38,7 @@ public class Product {
     double price;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+//    @JsonIgnore
     Set<Comment> comments;
 
     @Column(nullable = false)

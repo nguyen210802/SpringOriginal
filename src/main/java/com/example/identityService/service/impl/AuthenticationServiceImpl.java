@@ -2,8 +2,10 @@ package com.example.identityService.service.impl;
 
 import com.example.identityService.dto.request.AuthenticationRequest;
 import com.example.identityService.dto.request.IntrospectRequest;
+import com.example.identityService.dto.request.RefreshTokenRequest;
 import com.example.identityService.dto.response.AuthenticationResponse;
 import com.example.identityService.dto.response.IntrospectResponse;
+import com.example.identityService.dto.response.RefreshTokenResponse;
 import com.example.identityService.entity.User;
 import com.example.identityService.repository.UserRepository;
 import com.example.identityService.service.AuthenticationService;
@@ -69,6 +71,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return IntrospectResponse.builder()
                 .valid(verified && expiry.after(new Date()))
+                .build();
+    }
+
+    @Override
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) throws JOSEException, ParseException {
+        String oldToken = request.getToken();
+
+        // Verify the old token
+        JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY);
+        SignedJWT signedJWT = SignedJWT.parse(oldToken);
+
+        if (!signedJWT.verify(jwsVerifier)) {
+            return RefreshTokenResponse.builder()
+                    .success(false)
+                    .message("Invalid token")
+                    .build();
+        }
+
+        // Extract claims from the old token
+        JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+        String userId = claimsSet.getSubject();
+        String scope = (String) claimsSet.getClaim("scope");
+
+        // Check if the token has expired
+        Date expiry = claimsSet.getExpirationTime();
+        if (expiry.before(new Date())) {
+            return RefreshTokenResponse.builder()
+                    .success(false)
+                    .message("Token has expired")
+                    .build();
+        }
+
+        // Fetch user from database
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Generate new token
+        String newToken = generateToken(user);
+
+        return RefreshTokenResponse.builder()
+                .success(true)
+                .token(newToken)
                 .build();
     }
 

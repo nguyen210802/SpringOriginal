@@ -41,11 +41,11 @@ public class ProductController {
                 .build();
     }
 
-    @GetMapping("")
-    public ApiResponse<Product> getProductById(@RequestParam String id){
+    @GetMapping("/{productId}")
+    public ApiResponse<Product> getProductById(@PathVariable("productId") String productId){
         ProductService productService = (ProductService) map.get("product");
         return ApiResponse.<Product>builder()
-                .result(productService.getProductById(id))
+                .result(productService.getProductById(productId))
                 .build();
     }
 
@@ -65,37 +65,35 @@ public class ProductController {
         return ApiResponse.<Product>builder()
                 .result(productService.create(request))
                 .build();
-//        log.info("Product Image: {}", request.getImages());
-//        return null;
     }
 
-    @PutMapping("/update")
-    public ApiResponse<Product> updateProduct(@RequestParam String id, @RequestBody Product request){
+    @PutMapping("/update/{productId}")
+    public ApiResponse<Product> updateProduct(@PathVariable("productId") String productId, @RequestBody Product request){
         log.info("Product update Controller");
         ProductService productService = (ProductService) map.get("product");
         return ApiResponse.<Product>builder()
-                .result(productService.update(id, request))
+                .result(productService.update(productId, request))
                 .build();
     }
 
-    @DeleteMapping("/delete")
-    public ApiResponse<String> deleteProduct(@RequestParam String id){
+    @DeleteMapping("/delete/{productId}")
+    public ApiResponse<String> deleteProduct(@PathVariable("productId") String id){
         ProductService productService = (ProductService) map.get("product");
         return ApiResponse.<String>builder()
                 .result(productService.delete(id))
                 .build();
     }
 
-    @PostMapping("/addCart")
-    public ApiResponse<Cart> addCart(@RequestParam String productId){
+    @PostMapping("/addCart/{productId}")
+    public ApiResponse<Cart> addCart(@PathVariable("productId") String productId){
         CartService cartService = (CartService) map.get("cart");
         return ApiResponse.<Cart>builder()
                .result(cartService.addProduct(productId))
                .build();
     }
 
-    @PostMapping("/reduceCart")
-    public ApiResponse<Cart> reduceCart(@RequestParam String productId){
+    @PostMapping("/reduceCart/{productId}")
+    public ApiResponse<Cart> reduceCart(@PathVariable("productId") String productId){
         CartService cartService = (CartService) map.get("cart");
         return ApiResponse.<Cart>builder()
                .result(cartService.reduceProduct(productId))

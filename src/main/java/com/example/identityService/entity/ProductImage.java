@@ -20,6 +20,8 @@ public class ProductImage {
     @Column(length = 1000000)
     byte[] image;
 
+    boolean isMainImage;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     @JsonIgnore

@@ -36,7 +36,8 @@ public class WebSecurityConfig {
             "/users/product/getAll",
             "/users/product/comment/getAllByProduct",
             "/users/product/getProducts",
-            "/users/product/image/getByProduct"};
+            "/users/product/image/getByProduct/**",
+            "/users/product/image/getMainImage/**",};
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

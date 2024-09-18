@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +26,11 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
+    public ProductImage getMainImage(String productId) {
+        return productImageRepository.findMainImageByProduct_Id(productId);
+    }
+
+    @Override
     public ProductImageResponse update(ProductImage product) {
         return null;
     }
@@ -35,13 +39,5 @@ public class ProductImageServiceImpl implements ProductImageService {
     public String delete(String productImageId) {
         productImageRepository.deleteById(productImageId);
         return "Delete successfully";
-    }
-
-    private ProductImageResponse convertToDTO(ProductImage productImage) {
-        return ProductImageResponse.builder()
-                .id(productImage.getId())
-                .productId(productImage.getProduct().getId())
-                .image(Base64.getEncoder().encodeToString(productImage.getImage()))
-                .build();
     }
 }

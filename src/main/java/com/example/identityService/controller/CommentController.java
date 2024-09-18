@@ -23,8 +23,8 @@ public class CommentController {
         this.map = Map.of("comment", commentServiceImpl);
     }
 
-    @GetMapping("/getAllByProduct")
-    public ApiResponse<PageResponse<Comment>> getAllByProduct(@RequestParam String productId,
+    @GetMapping("/getAllByProduct/{productId}")
+    public ApiResponse<PageResponse<Comment>> getAllByProduct(@PathVariable("productId") String productId,
     @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
         CommentService commentService = (CommentService) map.get("comment");
         return ApiResponse.<PageResponse<Comment>>builder()
@@ -32,16 +32,16 @@ public class CommentController {
                .build();
     }
 
-    @PostMapping("/create")
-    public ApiResponse<Comment> create(@RequestParam String productId, @RequestBody Comment comment){
+    @PostMapping("/create/{productId}")
+    public ApiResponse<Comment> create(@PathVariable("productId") String productId, @RequestBody Comment comment){
         CommentService commentService = (CommentService) map.get("comment");
         return ApiResponse.<Comment>builder()
                 .result(commentService.create(productId, comment))
                 .build();
     }
 
-    @DeleteMapping("/delete")
-    public ApiResponse<String> delete(@RequestParam String commentId){
+    @DeleteMapping("/delete/{commentId}")
+    public ApiResponse<String> delete(@PathVariable("commentId") String commentId){
         CommentService commentService = (CommentService) map.get("comment");
         return ApiResponse.<String>builder()
                .result(commentService.delete(commentId))

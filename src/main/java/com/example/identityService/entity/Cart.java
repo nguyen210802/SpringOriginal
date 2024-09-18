@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -22,10 +23,9 @@ public class Cart {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+//    @JsonIgnore
     User buyer;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     Set<CartItem> cartItems;
 }

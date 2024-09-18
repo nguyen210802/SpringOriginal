@@ -15,11 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -61,49 +57,59 @@ public class CartServiceImpl implements CartService {
     public Cart addProduct(String productId) {
         Cart cart = getMyCart();
         Product product = productRepository.findById(productId).orElseThrow();
-        Set<CartItem> cartItems = cart.getCartItems();
 
-        for (CartItem item : cartItems){
-            if(item.getProduct().getId().equals(productId)){
-                item.setQuantity(item.getQuantity() + 1);
-                item.setPrice(item.getQuantity()*product.getPrice());
-                cartItemRepository.save(item);
-                return cart;
-            }
+        Optional<CartItem> existingCartItem = cart.getCartItems()
+                .stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst();
+
+        CartItem cartItem;
+        if (existingCartItem.isPresent()) {
+            cartItem = existingCartItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+            cartItem.setPrice(cartItem.getQuantity() * product.getPrice());
+        } else {
+            cartItem = CartItem.builder()
+                    .cart(cart)
+                    .product(product)
+                    .quantity(1)
+                    .price(product.getPrice())
+                    .build();
         }
+        cartItem = cartItemRepository.save(cartItem);
 
-        CartItem cartItem = CartItem.builder()
-                .cart(cart)
-                .product(product)
-                .quantity(1)
-                .price(product.getPrice())
-                .build();
-        cartItemRepository.save(cartItem);
-        return cart;
+        cart.getCartItems().add(cartItem);
+
+        return cartRepository.save(cart);
     }
+
 
     @Override
     @Transactional
     public Cart reduceProduct(String productId) {
         Cart cart = getMyCart();
         Product product = productRepository.findById(productId).orElseThrow();
-        Iterator<CartItem> iterator = cart.getCartItems().iterator();
 
-        while (iterator.hasNext()) {
-            CartItem item = iterator.next();
-            if (item.getProduct().getId().equals(productId)) {
-                item.setQuantity(item.getQuantity() - 1);
-                if (item.getQuantity() == 0) {
-                    iterator.remove(); // Xóa an toàn từ Set
-                    cartItemRepository.delete(item);
-                } else {
-                    item.setPrice(item.getQuantity()*product.getPrice());
-                    cartItemRepository.save(item);
-                }
-                break;
-            }
+        Optional<CartItem> existingCartItem = cart.getCartItems()
+                .stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst();
+
+        CartItem cartItem;
+        if (existingCartItem.isPresent()) {
+            cartItem = existingCartItem.get();
+            cartItem.setQuantity(cartItem.getQuantity() - 1);
+            cartItem.setPrice(cartItem.getQuantity() * product.getPrice());
+        }else
+            return null;
+
+        if(cartItem.getQuantity() <= 0){
+            cart.getCartItems().remove(cartItem);
+            cartItemRepository.delete(cartItem);
+        }else {
+            cartItemRepository.save(cartItem);
         }
 
-        return cartRepository.save(cart); // Lưu cart sau khi cập nhật
+        return cartRepository.save(cart);
     }
 }

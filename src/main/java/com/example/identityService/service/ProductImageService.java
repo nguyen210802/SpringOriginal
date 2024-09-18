@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ProductImageService {
     List<ProductImage> getAllByproductId(String productId);
+    ProductImage getMainImage(String productId);
     ProductImageResponse update(ProductImage product);
     String delete(String productImageId);
 }

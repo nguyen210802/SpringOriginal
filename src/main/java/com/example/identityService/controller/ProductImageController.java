@@ -8,10 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,10 +20,17 @@ import java.util.List;
 public class ProductImageController {
     ProductImageService productImageServiceImpl;
 
-    @GetMapping("/getByProduct")
-    public ApiResponse<List<ProductImage>> getByProduct(@RequestParam String productId){
+    @GetMapping("/getByProduct/{productId}")
+    public ApiResponse<List<ProductImage>> getByProduct(@PathVariable("productId") String productId){
         return ApiResponse.<List<ProductImage>>builder()
                 .result(productImageServiceImpl.getAllByproductId(productId))
+                .build();
+    }
+
+    @GetMapping("/getMainImage/{productId}")
+    public ApiResponse<ProductImage> getMainImage(@PathVariable String productId){
+        return ApiResponse.<ProductImage>builder()
+                .result(productImageServiceImpl.getMainImage(productId))
                 .build();
     }
 }
