@@ -9,4 +9,5 @@ public interface CartService{
 
     Cart addProduct(String productId);
     Cart reduceProduct(String productId);
+    Cart deleteProduct(String cartItemId);
 }

@@ -99,4 +99,12 @@ public class ProductController {
                .result(cartService.reduceProduct(productId))
                .build();
     }
+
+    @DeleteMapping("/deleteCart/{cartItemId}")
+    public ApiResponse<Cart> deleteCart(@PathVariable("cartItemId") String cartItemId){
+        CartService cartService = (CartService) map.get("cart");
+        return ApiResponse.<Cart>builder()
+                .result(cartService.deleteProduct(cartItemId))
+                .build();
+    }
 }

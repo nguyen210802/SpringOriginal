@@ -101,7 +101,7 @@ public class CartServiceImpl implements CartService {
             cartItem.setQuantity(cartItem.getQuantity() - 1);
             cartItem.setPrice(cartItem.getQuantity() * product.getPrice());
         }else
-            return null;
+            throw new RuntimeException("CartItem not exist");
 
         if(cartItem.getQuantity() <= 0){
             cart.getCartItems().remove(cartItem);
@@ -109,6 +109,28 @@ public class CartServiceImpl implements CartService {
         }else {
             cartItemRepository.save(cartItem);
         }
+
+        return cartRepository.save(cart);
+    }
+
+    @Override
+    @Transactional
+    public Cart deleteProduct(String cartItemId) {
+        Cart cart = getMyCart();
+
+        Optional<CartItem> existingCartItem = cart.getCartItems()
+                .stream()
+                .filter(item -> item.getId().equals(cartItemId))
+                .findFirst();
+
+        CartItem cartItem;
+        if (existingCartItem.isPresent()) {
+            cartItem = existingCartItem.get();
+        }else
+            throw new RuntimeException("CartItem not exist");
+
+        cart.getCartItems().remove(cartItem);
+        cartItemRepository.delete(cartItem);
 
         return cartRepository.save(cart);
     }
