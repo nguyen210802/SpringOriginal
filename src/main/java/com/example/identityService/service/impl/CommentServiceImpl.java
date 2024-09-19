@@ -15,12 +15,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +33,9 @@ public class CommentServiceImpl implements CommentService {
     CommentRepository commentRepository;
     ProductRepository productRepository;
     UserRepository userRepository;
+
     @Override
+    @Cacheable(value = "allComments", key = "'allComments'")
     public PageResponse<Comment> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         var pageData = commentRepository.findAll(pageable);
@@ -45,8 +50,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Cacheable(value = "allCommentsByProduct", key = "#productId")
     public PageResponse<Comment> getAllByProductId(String productId, int page, int size) {
-        Product product = productRepository.findById(productId).orElseThrow(
+        productRepository.findById(productId).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)
         );
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -62,7 +68,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Cacheable(value = "comment", key = "#commentId")
+    public Comment getByCommentId(String commentId) {
+        return commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not found"));
+    }
+
+    @Override
     @Transactional
+    @CachePut(value = "allComments", key = "'allComments'")
     public Comment create(String productId, Comment comment) {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new IllegalStateException("product not exited"));
@@ -77,12 +90,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Caching(put = {
+            @CachePut(value = "comment", key = "#comment.id"),
+            @CachePut(value = "allComments", key = "'allComments'")
+    })
     public Comment update(Comment comment) {
-//        return commentRepository.save(comment);
-        return null;
+        return commentRepository.save(comment);
     }
 
     @Override
+    @CachePut(value = "allComments", key = "'allComments'")
+    @CacheEvict(value = "comment", key = "#id")
     public String delete(String id) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findById(authenticated.getName()).orElseThrow(

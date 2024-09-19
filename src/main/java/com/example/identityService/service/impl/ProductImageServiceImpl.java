@@ -8,6 +8,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -21,21 +24,31 @@ public class ProductImageServiceImpl implements ProductImageService {
     ProductImageRepository productImageRepository;
 
     @Override
+    @Cacheable(value = "productImages", key = "#productId")
     public List<ProductImage> getAllByproductId(String productId) {
         return productImageRepository.findAllByProduct_Id(productId);
     }
 
     @Override
+    @Cacheable(value = "mainImage", key = "#productId")
     public ProductImage getMainImage(String productId) {
         return productImageRepository.findMainImageByProduct_Id(productId);
     }
 
     @Override
-    public ProductImageResponse update(ProductImage product) {
-        return null;
+    @Cacheable(value = "productImage", key = "#productImageId")
+    public ProductImage getById(String productImageId) {
+        return productImageRepository.findById(productImageId).orElseThrow(() -> new RuntimeException("ProductImage not found!"));
     }
 
     @Override
+    @CachePut(value = "productImage", key = "#productImage.id")
+    public ProductImage update(ProductImage productImage) {
+        return productImageRepository.save(productImage);
+    }
+
+    @Override
+    @CacheEvict(value = "productImage", key = "#productImageId")
     public String delete(String productImageId) {
         productImageRepository.deleteById(productImageId);
         return "Delete successfully";

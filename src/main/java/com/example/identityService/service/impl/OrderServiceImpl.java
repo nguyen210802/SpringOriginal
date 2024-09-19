@@ -16,15 +16,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -38,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     UserRepository userRepository;
 
     @Override
+    @Cacheable(value = "allOrder", key = "#page"+ '-' + "#size")
     public PageResponse<Order> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
         var pageData = orderRepository.findAll(pageable);
@@ -51,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value = "order", key = "#orderId")
     public Order getOrder(String orderId) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         String buyerId = authenticated.getName();
@@ -97,6 +99,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "order", key = "#orderId")
     public String deleteOrder(String orderId) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         String buyerId = authenticated.getName();

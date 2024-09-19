@@ -17,6 +17,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -39,6 +43,7 @@ public class AdminServiceImpl implements AdminService {
     private final ProductRepository productRepository;
 
     @Override
+    @Cacheable(value = "allUser", key = "'allUser'")
     public PageResponse<UserResponse> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createAt").ascending());
         var pageData = userRepository.findAll(pageable);
@@ -54,6 +59,7 @@ public class AdminServiceImpl implements AdminService {
 
     //    @Cacheable(value = "itemCache")
     @Override
+    @Cacheable(value = "userCache", key = "#id")
     public UserResponse getUserById(String id) {
 //        log.info("cache 1231313131");
         return userMapper.toUserResponse(userRepository.findById(id)
@@ -63,6 +69,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @CachePut(value = "userCache", key = "#id")
+    @CacheEvict(value = "allUser", key = "'allUser'")
     public UserResponse updateUser(String id, UserRequest request) {
         User users = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -74,6 +82,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "userCache", key = "#id")
+    @CachePut(value = "allUser", key = "'allTestRedis'")
     public String deleteUser(String id) {
         userRepository.deleteById(id);
         return "Delete successfully";

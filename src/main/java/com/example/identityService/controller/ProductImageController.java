@@ -33,4 +33,11 @@ public class ProductImageController {
                 .result(productImageServiceImpl.getMainImage(productId))
                 .build();
     }
+
+    @GetMapping("/{productImageId}")
+    public ApiResponse<ProductImage> getById(@PathVariable("productImageId") String id){
+        return ApiResponse.<ProductImage>builder()
+                .result(productImageServiceImpl.getById(id))
+                .build();
+    }
 }
