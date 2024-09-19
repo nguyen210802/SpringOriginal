@@ -1,11 +1,11 @@
 package com.example.identityService.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -29,7 +29,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonIgnore
-    Set<ProductImage> images;
+    List<ProductImage> images;
 
     String description;
     String manufacturer;

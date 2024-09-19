@@ -34,7 +34,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByBuyer_Id(userId).orElseThrow();
 
         List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getId());
-        HashSet<CartItem> items = new HashSet<>(cartItems);
+        List<CartItem> items = new ArrayList<>(cartItems);
 
         cart.setCartItems(items);
 

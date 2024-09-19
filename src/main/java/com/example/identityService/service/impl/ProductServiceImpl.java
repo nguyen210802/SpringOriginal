@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
     public Product create(ProductRequest request) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         String sellerId = authenticated.getName();
-        HashSet<ProductImage> hashSetImages = new HashSet<>();
+        List<ProductImage> hashSetImages = new ArrayList<>();
         Product product = Product.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -103,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
                 ProductImage productImage = productImageRepository.save(ProductImage.builder()
                        .product(product)
                        .image(image)
-                       .isMainImage(isFirstImage)
+                       .mainImage(isFirstImage)
                        .build());
                 isFirstImage = false;
 

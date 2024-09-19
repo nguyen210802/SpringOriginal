@@ -13,6 +13,6 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Stri
     @EntityGraph(attributePaths = {"image"})
     List<ProductImage> findAllByProduct_Id(String productId);
 
-    @Query("SELECT pi FROM ProductImage pi WHERE pi.product.id = :productId AND pi.isMainImage = true")
+    @Query("SELECT pi FROM ProductImage pi WHERE pi.product.id = :productId AND pi.mainImage = true")
     ProductImage findMainImageByProduct_Id(String productId);
 }
