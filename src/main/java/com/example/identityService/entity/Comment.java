@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -31,4 +33,18 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     User buyer;
+
+    @Column(nullable = false)
+    LocalDateTime createAt;
+    LocalDateTime updateAt;
+
+    @PrePersist
+    private void setCreateAt(){
+        this.createAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void setUpdateAt(){
+        this.updateAt = LocalDateTime.now();
+    }
 }

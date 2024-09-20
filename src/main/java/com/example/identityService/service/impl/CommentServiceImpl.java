@@ -21,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Cacheable(value = "allComments", key = "'allComments'")
     public PageResponse<Comment> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createAt").descending());
         var pageData = commentRepository.findAll(pageable);
 
         return PageResponse.<Comment>builder()
@@ -55,7 +56,7 @@ public class CommentServiceImpl implements CommentService {
         productRepository.findById(productId).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)
         );
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createAt").descending());
         var pageData = commentRepository.findAllByProduct_Id(productId, pageable);
 
         return PageResponse.<Comment>builder()
