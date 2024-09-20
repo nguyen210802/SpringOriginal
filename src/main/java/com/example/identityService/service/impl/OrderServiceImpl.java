@@ -99,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order successfullyDelivery(String orderId) {
+    public Order updateDelivery(String orderId, boolean delivery) {
         Order order = orderRepository.findById(orderId).orElseThrow();
         order.setDelivery(true);
         return orderRepository.save(order);

@@ -12,6 +12,6 @@ public interface OrderService {
     PageResponse<Order> getAll(int page, int size);
     Order getOrder(String orderId);
     Order createOrder(Set<OrderItem> orderItems);
-    Order successfullyDelivery(String orderId);
+    Order updateDelivery(String orderId, boolean delivery);
     String deleteOrder(String orderId);
 }
