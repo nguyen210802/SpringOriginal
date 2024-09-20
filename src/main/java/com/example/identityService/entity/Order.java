@@ -37,6 +37,10 @@ public class Order {
 
     LocalDateTime updateAt;
 
+    @Column(nullable = false)
+    @Builder.Default
+    boolean delivery = false;
+
     @PrePersist
     private void SetOrderDate(){
         this.createAt = LocalDateTime.now();

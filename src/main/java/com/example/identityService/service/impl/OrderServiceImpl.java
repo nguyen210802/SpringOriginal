@@ -93,7 +93,15 @@ public class OrderServiceImpl implements OrderService {
 
         order.setOrderItems(orderItems2);
         order.setTotalAmount(totalAmount);
+        order.setDelivery(false);
 
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public Order successfullyDelivery(String orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        order.setDelivery(true);
         return orderRepository.save(order);
     }
 
