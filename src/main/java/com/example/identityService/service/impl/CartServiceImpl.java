@@ -42,6 +42,15 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public int countMyCart() {
+        var authenticated = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authenticated.getName();
+        Cart cart = cartRepository.findByBuyer_Id(userId).orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        return cart.getCartItems().size();
+    }
+
+    @Override
     public Cart update(Cart cart) {
         return cartRepository.save(cart);
     }
