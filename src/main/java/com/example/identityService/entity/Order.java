@@ -41,7 +41,7 @@ public class Order {
     @Builder.Default
     boolean delivery = false;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     LocalDate createAt;
     LocalDate updateAt;
 

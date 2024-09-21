@@ -34,7 +34,7 @@ public class Comment {
     @JsonIgnore
     User buyer;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     LocalDate createAt;
     LocalDate updateAt;
 

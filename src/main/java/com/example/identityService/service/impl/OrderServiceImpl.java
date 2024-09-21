@@ -1,6 +1,7 @@
 package com.example.identityService.service.impl;
 
 import com.example.identityService.dto.PageResponse;
+import com.example.identityService.dto.request.OrderItemRequest;
 import com.example.identityService.entity.Address;
 import com.example.identityService.entity.Order;
 import com.example.identityService.entity.OrderItem;
@@ -65,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order createOrder(String addressId, Set<OrderItem> orderItems) {
+    public Order createOrder(String addressId, Set<OrderItemRequest> requests) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         String buyerId = authenticated.getName();
 
@@ -78,24 +79,30 @@ public class OrderServiceImpl implements OrderService {
         order.setAddress(address);
         order = orderRepository.save(order);
 
-        List<OrderItem> orderItems2 = new ArrayList<>();
+        List<OrderItem> orderItems = new ArrayList<>();
 
         double totalAmount = 0;
 
-        for(OrderItem item : orderItems){
-            Product product = productRepository.findById(item.getProductId()).orElseThrow();
+        for(OrderItemRequest request : requests){
+            Product product = productRepository.findById(request.getProductId()).orElseThrow();
 
-            item.setOrder(order);
-            item.setProductPrice(product.getPrice());
-            item.setPrice(product.getPrice() * item.getQuantity());
-            orderItemRepository.save(item);
+            OrderItem orderItem = OrderItem.builder()
+                    .order(order)
+                    .productId(request.getProductId())
+                    .productPrice(product.getPrice())
+                    .linkProduct(request.getLinkProduct())
+                    .quantity(request.getQuantity())
+                    .price(product.getPrice() * request.getQuantity())
+                    .build();
 
-            totalAmount += item.getPrice();
+            orderItemRepository.save(orderItem);
 
-            orderItems2.add(item);
+            totalAmount += orderItem.getPrice();
+
+            orderItems.add(orderItem);
         }
 
-        order.setOrderItems(orderItems2);
+        order.setOrderItems(orderItems);
         order.setTotalAmount(totalAmount);
         order.setDelivery(false);
 

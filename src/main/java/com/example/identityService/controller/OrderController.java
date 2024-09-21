@@ -2,6 +2,7 @@ package com.example.identityService.controller;
 
 import com.example.identityService.dto.ApiResponse;
 import com.example.identityService.dto.PageResponse;
+import com.example.identityService.dto.request.OrderItemRequest;
 import com.example.identityService.entity.Order;
 import com.example.identityService.entity.OrderItem;
 import com.example.identityService.service.OrderService;
@@ -34,9 +35,9 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ApiResponse<Order> create(@RequestParam String addressId, @RequestBody Set<OrderItem> orderItems){
+    public ApiResponse<Order> create(@RequestParam String addressId, @RequestBody Set<OrderItemRequest> requests){
         return ApiResponse.<Order>builder()
-                .result(orderService.createOrder(addressId, orderItems))
+                .result(orderService.createOrder(addressId, requests))
                 .build();
     }
 

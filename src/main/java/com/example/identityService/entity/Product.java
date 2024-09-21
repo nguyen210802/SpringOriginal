@@ -40,7 +40,7 @@ public class Product {
 //    @JsonIgnore
     List<Comment> comments;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     LocalDate createAt;
     LocalDate updateAt;
 
