@@ -11,7 +11,6 @@ import java.util.Set;
 public interface OrderService {
     PageResponse<Order> getAll(int page, int size);
     Order getOrder(String orderId);
-    Order createOrder(Set<OrderItem> orderItems);
-    Order updateDelivery(String orderId, boolean delivery);
+    Order createOrder(String addressId, Set<OrderItem> orderItems);
     String deleteOrder(String orderId);
 }

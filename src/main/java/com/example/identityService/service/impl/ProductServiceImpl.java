@@ -40,7 +40,6 @@ public class ProductServiceImpl implements ProductService {
     ProductImageRepository productImageRepository;
 
     @Override
-    @Cacheable(value = "allProduct", key = "#page"+'-'+"#size")
     public PageResponse<Product> getAll(int page, int size) {
 //        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -55,13 +54,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(value = "product", key = "#id")
     public Product getProductById(String id) {
         return productRepository.findById(id).orElseThrow();
     }
 
     @Override
-    @Cacheable(value = "allMyProduct", key = "#page"+'-'+"#size")
     public PageResponse<Product> getAllMyProduct(int page, int size) {
         Authentication authenticated = SecurityContextHolder.getContext().getAuthentication();
         String sellerId = authenticated.getName();
@@ -122,7 +119,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CachePut(value = "product", key = "#id")
     public Product update(String id, Product update) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
 
@@ -142,7 +138,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CacheEvict(value = "product", key = "#id")
     public String delete(String id) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
 

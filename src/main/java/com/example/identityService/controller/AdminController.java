@@ -58,9 +58,17 @@ public class AdminController {
 
     @PutMapping("order/delivery")
     public ApiResponse<Order> deliveryOrder(@RequestParam String orderId, boolean delivery){
-        OrderService orderService = (OrderService)this.map.get("order");
+        AdminService adminService = (AdminService) this.map.get("admin");
         return ApiResponse.<Order>builder()
-               .result(orderService.updateDelivery(orderId, delivery))
+               .result(adminService.updateDelivery(orderId, delivery))
                .build();
+    }
+
+    @DeleteMapping("/product/delete/{productId}")
+    public ApiResponse<String> deleteProduct(@PathVariable("productId") String productId){
+        AdminService adminService = (AdminService)this.map.get("admin");
+        return ApiResponse.<String>builder()
+                .result(adminService.deleteProductById(productId))
+                .build();
     }
 }

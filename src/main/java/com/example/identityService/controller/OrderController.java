@@ -34,9 +34,9 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ApiResponse<Order> create(@RequestBody Set<OrderItem> orderItems){
+    public ApiResponse<Order> create(@RequestParam String addressId, @RequestBody Set<OrderItem> orderItems){
         return ApiResponse.<Order>builder()
-                .result(orderService.createOrder(orderItems))
+                .result(orderService.createOrder(addressId, orderItems))
                 .build();
     }
 

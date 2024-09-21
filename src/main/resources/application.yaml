@@ -30,9 +30,8 @@ spring:
 
   data:
     redis:
-      host: redis
+      host: localhost
       port: 6379
-      password: redisdb
 
 server:
   port: 8080
@@ -42,4 +41,4 @@ jwt:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: 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
+    brevo-apikey: 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

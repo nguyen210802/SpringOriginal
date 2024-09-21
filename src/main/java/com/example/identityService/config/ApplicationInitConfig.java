@@ -30,6 +30,7 @@ public class ApplicationInitConfig {
                     .password(passwordEncoder.encode("admin"))
                     .email("admin@gmail.com")
                     .role(Role.ADMIN)
+                    .phone("08886868")
                     .build();
             userRepository.save(user);
         };

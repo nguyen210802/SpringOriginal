@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -39,19 +38,19 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonIgnore
-    Set<Comment> comments;
+    List<Comment> comments;
 
-    @Column(nullable = false)
-    LocalDateTime createAt;
-    LocalDateTime updateAt;
+    @Column(unique = true, nullable = false)
+    LocalDate createAt;
+    LocalDate updateAt;
 
     @PrePersist
     private void setCreateAt(){
-        this.createAt = LocalDateTime.now();
+        this.createAt = LocalDate.now();
     }
 
     @PreUpdate
     private void setUpdateAt(){
-        this.updateAt = LocalDateTime.now();
+        this.updateAt = LocalDate.now();
     }
 }

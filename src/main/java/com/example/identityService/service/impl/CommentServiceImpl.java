@@ -51,7 +51,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Cacheable(value = "allCommentsByProduct", key = "#productId")
     public PageResponse<Comment> getAllByProductId(String productId, int page, int size) {
         productRepository.findById(productId).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)
@@ -69,14 +68,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Cacheable(value = "comment", key = "#commentId")
     public Comment getByCommentId(String commentId) {
         return commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not found"));
     }
 
     @Override
     @Transactional
-    @CachePut(value = "allComments", key = "'allComments'")
     public Comment create(String productId, Comment comment) {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new IllegalStateException("product not exited"));
@@ -91,17 +88,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Caching(put = {
-            @CachePut(value = "comment", key = "#comment.id"),
-            @CachePut(value = "allComments", key = "'allComments'")
-    })
     public Comment update(Comment comment) {
         return commentRepository.save(comment);
     }
 
     @Override
-    @CachePut(value = "allComments", key = "'allComments'")
-    @CacheEvict(value = "comment", key = "#id")
     public String delete(String id) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findById(authenticated.getName()).orElseThrow(

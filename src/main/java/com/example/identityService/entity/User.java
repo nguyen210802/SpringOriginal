@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,17 +23,26 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(name = "username", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     String username;
 
     @Column(nullable = false)
     String password;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     String email;
 
     @Enumerated(EnumType.STRING)
     Role role;
+
+    @Column(unique = true, nullable = false)
+    String phone;
+
+    LocalDate dob;
+
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Address> address;
 
     @OneToOne(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -41,19 +50,23 @@ public class User {
 
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    Set<Product> products;
+    List<Product> products;
+
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Order> orders;
 
     @Column(nullable = false)
-    LocalDateTime createAt;
-    LocalDateTime updateAt;
-//
+    LocalDate createAt;
+    LocalDate updateAt;
+
     @PrePersist
-    public void setCreateAt(){
-        this.createAt = LocalDateTime.now();
+    private void setCreateAt(){
+        this.createAt = LocalDate.now();
     }
 
     @PreUpdate
-    public void setUpdateAt(){
-        this.updateAt = LocalDateTime.now();
+    private void setUpdateAt(){
+        this.updateAt = LocalDate.now();
     }
 }

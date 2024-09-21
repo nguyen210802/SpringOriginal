@@ -3,14 +3,12 @@ package com.example.identityService.service.impl;
 import com.example.identityService.dto.PageResponse;
 import com.example.identityService.dto.request.UserRequest;
 import com.example.identityService.dto.response.UserResponse;
+import com.example.identityService.entity.Order;
 import com.example.identityService.entity.User;
 import com.example.identityService.exception.AppException;
 import com.example.identityService.exception.ErrorCode;
 import com.example.identityService.mapper.UserMapper;
-import com.example.identityService.repository.CartItemRepository;
-import com.example.identityService.repository.CartRepository;
-import com.example.identityService.repository.ProductRepository;
-import com.example.identityService.repository.UserRepository;
+import com.example.identityService.repository.*;
 import com.example.identityService.service.AdminService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -20,11 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,14 +32,12 @@ import java.util.List;
 @Slf4j
 public class AdminServiceImpl implements AdminService {
     UserRepository userRepository;
-    CartRepository cartRepository;
-    CartItemRepository cartItemRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
-    private final ProductRepository productRepository;
+    ProductRepository productRepository;
+    OrderRepository orderRepository;
 
     @Override
-    @Cacheable(value = "allUser", key = "'allUser'")
     public PageResponse<UserResponse> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createAt").ascending());
         var pageData = userRepository.findAll(pageable);
@@ -59,7 +53,6 @@ public class AdminServiceImpl implements AdminService {
 
     //    @Cacheable(value = "itemCache")
     @Override
-    @Cacheable(value = "userCache", key = "#id")
     public UserResponse getUserById(String id) {
 //        log.info("cache 1231313131");
         return userMapper.toUserResponse(userRepository.findById(id)
@@ -69,8 +62,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    @CachePut(value = "userCache", key = "#id")
-    @CacheEvict(value = "allUser", key = "'allUser'")
     public UserResponse updateUser(String id, UserRequest request) {
         User users = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -82,10 +73,21 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "userCache", key = "#id")
-    @CachePut(value = "allUser", key = "'allTestRedis'")
     public String deleteUser(String id) {
         userRepository.deleteById(id);
         return "Delete successfully";
+    }
+
+    @Override
+    public String deleteProductById(String productId) {
+        productRepository.deleteById(productId);
+        return "Delete successfully";
+    }
+
+    @Override
+    public Order updateDelivery(String orderId, boolean delivery) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        order.setDelivery(true);
+        return orderRepository.save(order);
     }
 }
