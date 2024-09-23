@@ -140,11 +140,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public String delete(String id) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
+        String sellerId = authenticated.getName();
+        String authentication = authenticated.getAuthorities().toString();
+        log.info("authentication: {}", authentication);
 
         Product product = productRepository.findById(id).orElseThrow(
                 () ->new IllegalStateException("Product not exited"));
 
-        if(authenticated.getName().equals(product.getSeller().getId())){
+        if(authentication.equals("ROLE_ADMIN") || sellerId.equals(product.getSeller().getId())){
             productRepository.deleteById(id);
         }
         else{

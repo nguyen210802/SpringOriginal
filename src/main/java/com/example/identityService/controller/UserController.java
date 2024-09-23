@@ -43,14 +43,6 @@ public class UserController {
                .build();
     }
 
-    @GetMapping("/myCart/count")
-    public ApiResponse<Integer> getCountMyCart(){
-        CartService cartService = (CartService) map.get("cart");
-        return ApiResponse.<Integer>builder()
-                .result(cartService.countMyCart())
-                .build();
-    }
-
     @PostMapping("/registration")
     public ApiResponse<UserResponse> createUser(@RequestBody UserRequest request) {
         UserService userService = (UserService) map.get("user");
