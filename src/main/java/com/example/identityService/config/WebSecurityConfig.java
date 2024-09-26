@@ -31,13 +31,16 @@ import javax.crypto.spec.SecretKeySpec;
 public class WebSecurityConfig {
     String SIGNER_KEY = "xolCXXnMNhOdT3hIZF5LTFM9koeXWe25Q5RzsG4ZU9x70X1WRHB18ymjIxo0/s6w";
 
-    String[] PUBLIC_POST = {"/users/registration", "/auth/login", "/auth/introspect"};
+    String[] PUBLIC_POST = {"/users/registration",
+            "/auth/login",
+            "/auth/introspect",
+            "/users/confirmOtpAndCreateUser"};
     String[] PUBLIC_GET = {"/users/product",
             "/users/product/getAll",
             "/users/product/comment/getAllByProduct",
             "/users/product/getProducts",
             "/users/product/image/getByProduct/**",
-            "/users/product/image/getMainImage/**",};
+            "/users/product/image/getMainImage/**"};
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -48,6 +51,9 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((request) -> request
                     .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
+                    .requestMatchers(PUBLIC_GET).permitAll()
+                    .requestMatchers(HttpMethod.POST, "otp/generate").permitAll()
+                    .requestMatchers(HttpMethod.POST, "otp/validate").permitAll()
                     .requestMatchers(PUBLIC_GET).permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
