@@ -39,6 +39,7 @@ public class WebSecurityConfig {
             "/users/product/getAll",
             "/users/product/comment/getAllByProduct",
             "/users/product/getProducts",
+            "/users/product/getAllByName",
             "/users/product/image/getByProduct/**",
             "/users/product/image/getMainImage/**"};
     @Bean

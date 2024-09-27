@@ -41,6 +41,19 @@ public class ProductController {
                 .build();
     }
 
+    @GetMapping("/getAllByName")
+    public ApiResponse<PageResponse<Product>> getAllByName(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String name) {
+
+        ProductService productService = (ProductService) map.get("product");
+
+        return ApiResponse.<PageResponse<Product>>builder()
+                .result(productService.getAllByName(page, size, name))
+                .build();
+    }
+
     @GetMapping("/{productId}")
     public ApiResponse<Product> getProductById(@PathVariable("productId") String productId){
         ProductService productService = (ProductService) map.get("product");

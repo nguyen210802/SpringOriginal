@@ -1,5 +1,6 @@
 package com.example.identityService.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,7 +28,7 @@ public class Product {
     String name;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnore
+//    fetch = FetchType.LAZY
     List<ProductImage> images;
 
     String description;
@@ -37,7 +38,6 @@ public class Product {
     double price;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnore
     List<Comment> comments;
 
     @Column(nullable = false)

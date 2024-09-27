@@ -10,8 +10,8 @@ import java.util.List;
 public interface ProductService {
     PageResponse<Product> getAll(int page, int size);
     Product getProductById(String id);
-//    List<Product> getAll();
     PageResponse<Product> getAllMyProduct(int page, int size);
+    PageResponse<Product> getAllByName(int page, int size, String name);
     Product create(ProductRequest request);
     Product update(String id, Product product);
     String delete(String id);

@@ -76,6 +76,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public PageResponse<Product> getAllByName(int page, int size, String name) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        var pageData = productRepository.findByNameContaining(name, pageable);
+
+        List<Product> product = productRepository.findAll();
+        log.info("Product Image: {}", product.get(0).getImages().get(0));
+
+        return PageResponse.<Product>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent())
+                .build();
+    }
+
+    @Override
     @Transactional
     public Product create(ProductRequest request) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
