@@ -31,13 +31,17 @@ public class CartServiceImpl implements CartService {
     public Cart getMyCart() {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         String userId = authenticated.getName();
-        Cart cart = cartRepository.findByBuyer_Id(userId).orElseThrow();
+        return cartRepository.findByBuyer_Id(userId).orElseThrow();
+    }
 
-        List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getId());
-        List<CartItem> items = new ArrayList<>(cartItems);
-
-        cart.setCartItems(items);
-
+    @Override
+    public Cart getCartByProductName(String productName) {
+        Cart cart = getMyCart();
+        List<CartItem> cartItems = new ArrayList<>();
+        cartItems = cart.getCartItems().stream()
+                .filter(item -> item.getProduct().getName().toLowerCase().contains(productName.toLowerCase()))
+               .toList();
+        cart.setCartItems(cartItems);
         return cart;
     }
 

@@ -15,9 +15,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -78,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PageResponse<Product> getAllByName(int page, int size, String name) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        var pageData = productRepository.findByNameContaining(name, pageable);
+        var pageData = productRepository.findByNameContainingIgnoreCase(name, pageable);
 
         List<Product> product = productRepository.findAll();
         log.info("Product Image: {}", product.get(0).getImages().get(0));

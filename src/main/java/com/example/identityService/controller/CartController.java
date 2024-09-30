@@ -21,6 +21,14 @@ public class CartController {
         this.map = Map.of("cart", cartServiceImpl);
     }
 
+    @GetMapping("/getCartByProductName")
+    public ApiResponse<Cart> getCartByProductName(@RequestParam("productName") String productName){
+        CartService cartService = (CartService) map.get("cart");
+        return ApiResponse.<Cart>builder()
+               .result(cartService.getCartByProductName(productName))
+               .build();
+    }
+
     @PostMapping("/addCart/{productId}")
     public ApiResponse<Cart> addCart(@PathVariable("productId") String productId){
         CartService cartService = (CartService) map.get("cart");

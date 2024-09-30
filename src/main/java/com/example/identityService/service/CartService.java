@@ -4,6 +4,7 @@ import com.example.identityService.entity.Cart;
 
 public interface CartService{
     Cart getMyCart();
+    Cart getCartByProductName(String productName);
     int countMyCart();
     Cart update(Cart cartUpdate);
     void delete(String userId);

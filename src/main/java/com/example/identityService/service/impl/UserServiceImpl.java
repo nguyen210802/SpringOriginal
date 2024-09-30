@@ -65,7 +65,6 @@ public class UserServiceImpl implements UserService {
     public UserResponse confirmOtpAndCreateUser(UserRequest request, String otp) {
         if(userRepository.findByUsername(request.getUsername()) != null || userRepository.findByEmail(request.getEmail()) != null)
             throw new AppException(ErrorCode.USER_EXISTED);
-        log.info("Authentication OTP: {}", !otpService.validateOTP(request.getUsername(), otp));
         if(!otpService.validateOTP(request.getUsername(), otp))
             throw new RuntimeException("Invalid");
 

@@ -1,7 +1,6 @@
 package com.example.identityService.repository.httpclient;
 
 import com.example.identityService.dto.request.EmailRequest;
-import com.example.identityService.dto.request.SendEmailRequest;
 import com.example.identityService.dto.response.EmailResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;

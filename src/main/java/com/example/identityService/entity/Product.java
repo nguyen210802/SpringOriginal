@@ -37,7 +37,7 @@ public class Product {
     @Column(nullable = false)
     double price;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<Comment> comments;
 
     @Column(nullable = false)
