@@ -1,32 +1,35 @@
 package com.example.identityService.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Cart {
+public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
-    @OneToOne()
+    @ManyToOne()
     @JoinColumn(name = "user_id", nullable = false)
-//    @JsonIgnore
-    User buyer;
+    User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
-    List<CartItem> cartItems;
+    @Column(nullable = false)
+    String message;
+
+    @Column(nullable = false)
+    boolean read;
+    LocalDate createAt;
+
+    @PrePersist
+    private void setCreateAt(){
+        this.createAt = LocalDate.now();
+    }
 }

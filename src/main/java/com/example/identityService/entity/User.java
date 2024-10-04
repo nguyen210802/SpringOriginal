@@ -56,6 +56,10 @@ public class User {
     @JsonIgnore
     List<Order> orders;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Notification> notifications;
+
     @Column(nullable = false)
     LocalDate createAt;
     LocalDate updateAt;

@@ -26,8 +26,8 @@ public class Order {
 //    @JsonIgnore
     User buyer;
 
-    @OneToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "address_id", nullable = false)
     Address address;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -7,6 +7,7 @@ import com.example.identityService.dto.response.AuthenticationResponse;
 import com.example.identityService.dto.response.IntrospectResponse;
 import com.example.identityService.dto.response.RefreshTokenResponse;
 import com.example.identityService.entity.User;
+import com.example.identityService.enums.Role;
 import com.example.identityService.repository.UserRepository;
 import com.example.identityService.service.AuthenticationService;
 import com.nimbusds.jose.*;
@@ -20,13 +21,16 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +57,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .authenticated(false)
                     .build();
         var token = generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build();
+    }
+
+    @Override
+    public AuthenticationResponse authenticateWithGoogle(OAuth2User principal) {
+        var token = generateToken(principal);
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(true)
@@ -127,6 +140,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli()
                 ))
                 .claim("scope", user.getRole())
+                .build();
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot create token");
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String generateToken(OAuth2User principal){
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(String.valueOf(Objects.requireNonNull(principal.getAttribute("id"))))
+                .issuer("nguyen.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli()
+                ))
+                .claim("scope", Role.USER)
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
 

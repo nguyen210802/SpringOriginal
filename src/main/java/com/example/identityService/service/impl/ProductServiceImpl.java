@@ -76,8 +76,8 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(page - 1, size);
         var pageData = productRepository.findByNameContainingIgnoreCase(name, pageable);
 
-        List<Product> product = productRepository.findAll();
-        log.info("Product Image: {}", product.get(0).getImages().get(0));
+//        List<Product> product = productRepository.findAll();
+//        log.info("Product Image: {}", product.get(0).getImages().get(0));
 
         return PageResponse.<Product>builder()
                 .currentPage(page)

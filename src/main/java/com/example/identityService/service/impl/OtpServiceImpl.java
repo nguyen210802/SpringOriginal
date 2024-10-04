@@ -19,24 +19,14 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public String generateOTP(String username) {
-        // Sinh OTP ngẫu nhiên (ví dụ: 6 chữ số)
         String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
-
-        // Lưu OTP với tên người dùng
-        otpStore.put(username, otp);  // Đảm bảo username là một chuỗi đơn giản
-
-        log.info("otpStore: {}", otpStore);
-        log.info("Otp: {}", otp);
-
+        otpStore.put(username, otp);
         return otp;
     }
 
     @Override
     public boolean validateOTP(String username, String otp) {
-        log.info("usernameRequest: {}", username);
-        log.info("otpRequest: {}", otp);
         String storedOtp = otpStore.get(username);
-        log.info("storedOtp: {}", storedOtp);
         return storedOtp != null && storedOtp.equals(otp);
     }
 

@@ -34,7 +34,8 @@ public class WebSecurityConfig {
     String[] PUBLIC_POST = {"/users/registration",
             "/auth/login",
             "/auth/introspect",
-            "/users/confirmOtpAndCreateUser"};
+            "/users/confirmOtpAndCreateUser",
+            "/auth/loginWithGoogle"};
     String[] PUBLIC_GET = {"/users/product",
             "/users/product/getAll",
             "/users/product/comment/getAllByProduct",
@@ -56,6 +57,8 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.POST, "otp/generate").permitAll()
                     .requestMatchers(HttpMethod.POST, "otp/validate").permitAll()
                     .requestMatchers(PUBLIC_GET).permitAll()
+                    .requestMatchers("/OriginShop/login").permitAll()
+                    .requestMatchers("/oauth2/authorization/google").permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
                 )
@@ -65,6 +68,7 @@ public class WebSecurityConfig {
                                                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
+
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }

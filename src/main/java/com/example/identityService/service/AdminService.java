@@ -1,13 +1,10 @@
 package com.example.identityService.service;
 
-import com.example.identityService.dto.ApiResponse;
 import com.example.identityService.dto.PageResponse;
 import com.example.identityService.dto.request.UserRequest;
 import com.example.identityService.dto.response.UserResponse;
 import com.example.identityService.entity.Order;
-import com.example.identityService.entity.Product;
 
-import java.util.List;
 
 public interface AdminService{
     PageResponse<UserResponse> getAll(int page, int size);
@@ -17,5 +14,5 @@ public interface AdminService{
 
     String deleteProductById(String productId);
 
-    Order updateDelivery(String orderId, boolean delivery);
+    Order updateDelivery(String orderId);
 }

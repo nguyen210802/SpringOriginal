@@ -27,12 +27,26 @@ spring:
       properties:
         spring.json.trusted.packages: com.example.identityService.dto
         spring.json.value.default.type: com.example.identityService.dto.NotificationEvent
-
   data:
     redis:
       host: localhost
       port: 6379
-
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 56418772508-nbp9quvd1915n9imna31jl1eqo0a3mii.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - profile
+              - email
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
 server:
   port: 8080
 jwt:

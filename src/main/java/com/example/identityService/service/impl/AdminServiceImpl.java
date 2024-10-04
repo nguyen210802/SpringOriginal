@@ -3,6 +3,7 @@ package com.example.identityService.service.impl;
 import com.example.identityService.dto.PageResponse;
 import com.example.identityService.dto.request.UserRequest;
 import com.example.identityService.dto.response.UserResponse;
+import com.example.identityService.entity.Notification;
 import com.example.identityService.entity.Order;
 import com.example.identityService.entity.User;
 import com.example.identityService.exception.AppException;
@@ -15,16 +16,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +33,8 @@ public class AdminServiceImpl implements AdminService {
     UserMapper userMapper;
     ProductRepository productRepository;
     OrderRepository orderRepository;
+    NotificationRepository notificationRepository;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public PageResponse<UserResponse> getAll(int page, int size) {
@@ -54,7 +53,6 @@ public class AdminServiceImpl implements AdminService {
     //    @Cacheable(value = "itemCache")
     @Override
     public UserResponse getUserById(String id) {
-//        log.info("cache 1231313131");
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED))
         );
@@ -85,9 +83,22 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Order updateDelivery(String orderId, boolean delivery) {
+    @Transactional
+    public Order updateDelivery(String orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow();
         order.setDelivery(true);
+
+        String message = String.format("Don hang %s da duoc xac nhan!", orderId);
+
+        Notification notification = Notification.builder()
+                .user(order.getBuyer())
+                .message(message)
+                .read(false)
+                .build();
+
+        notificationRepository.save(notification);
+        kafkaTemplate.send("notification_confirmOrder", notification);
+
         return orderRepository.save(order);
     }
 }

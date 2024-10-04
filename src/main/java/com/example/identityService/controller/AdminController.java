@@ -57,10 +57,10 @@ public class AdminController {
     }
 
     @PutMapping("order/delivery")
-    public ApiResponse<Order> deliveryOrder(@RequestParam String orderId, boolean delivery){
+    public ApiResponse<Order> deliveryOrder(@RequestParam String orderId){
         AdminService adminService = (AdminService) this.map.get("admin");
         return ApiResponse.<Order>builder()
-               .result(adminService.updateDelivery(orderId, delivery))
+               .result(adminService.updateDelivery(orderId))
                .build();
     }
 
