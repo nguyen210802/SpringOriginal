@@ -2,10 +2,9 @@ package com.example.identityService.service.impl;
 
 import com.example.identityService.dto.request.AuthenticationRequest;
 import com.example.identityService.dto.request.IntrospectRequest;
-import com.example.identityService.dto.request.RefreshTokenRequest;
 import com.example.identityService.dto.response.AuthenticationResponse;
 import com.example.identityService.dto.response.IntrospectResponse;
-import com.example.identityService.dto.response.RefreshTokenResponse;
+import com.example.identityService.dto.response.RefreshTokenRequest;
 import com.example.identityService.entity.User;
 import com.example.identityService.enums.Role;
 import com.example.identityService.repository.UserRepository;
@@ -21,7 +20,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -56,9 +54,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return AuthenticationResponse.builder()
                     .authenticated(false)
                     .build();
-        var token = generateToken(user);
+
         return AuthenticationResponse.builder()
-                .token(token)
+                .token(generateToken(user))
+                .refreshToken(generateRefreshToken(user))
                 .authenticated(true)
                 .build();
     }
@@ -88,45 +87,38 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) throws JOSEException, ParseException {
-        String oldToken = request.getToken();
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(request.getRefreshToken());
+            JWSVerifier verifier = new MACVerifier(SIGNER_KEY);
 
-        // Verify the old token
-        JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY);
-        SignedJWT signedJWT = SignedJWT.parse(oldToken);
+            if (!signedJWT.verify(verifier)) {
+                throw new RuntimeException("Invalid refresh token");
+            }
 
-        if (!signedJWT.verify(jwsVerifier)) {
-            return RefreshTokenResponse.builder()
-                    .success(false)
-                    .message("Invalid token")
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+            if (claims.getExpirationTime().before(new Date())) {
+                throw new RuntimeException("Refresh token expired");
+            }
+
+            if (!"refresh".equals(claims.getClaim("type"))) {
+                throw new RuntimeException("Invalid token type");
+            }
+
+            String userId = claims.getSubject();
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+            String newToken = generateToken(user);
+            String newRefreshToken = generateRefreshToken(user);
+
+            return AuthenticationResponse.builder()
+                    .token(newToken)
+                    .refreshToken(newRefreshToken)
+                    .authenticated(true)
                     .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Error refreshing token");
         }
-
-        // Extract claims from the old token
-        JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-        String userId = claimsSet.getSubject();
-        String scope = (String) claimsSet.getClaim("scope");
-
-        // Check if the token has expired
-        Date expiry = claimsSet.getExpirationTime();
-        if (expiry.before(new Date())) {
-            return RefreshTokenResponse.builder()
-                    .success(false)
-                    .message("Token has expired")
-                    .build();
-        }
-
-        // Fetch user from database
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Generate new token
-        String newToken = generateToken(user);
-
-        return RefreshTokenResponse.builder()
-                .success(true)
-                .token(newToken)
-                .build();
     }
 
     private String generateToken(User user){
@@ -137,7 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .issuer("nguyen.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli()
+                        Instant.now().plus(1, ChronoUnit.MINUTES).toEpochMilli()
                 ))
                 .claim("scope", user.getRole())
                 .build();
@@ -149,6 +141,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error("Cannot create token");
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String generateRefreshToken(User user) {
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(String.valueOf(user.getId()))
+                .issuer("nguyen.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli()
+                ))
+                .claim("type", "refresh")
+                .build();
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot create refresh token");
             throw new RuntimeException(e);
         }
     }

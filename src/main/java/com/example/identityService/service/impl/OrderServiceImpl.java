@@ -2,10 +2,7 @@ package com.example.identityService.service.impl;
 
 import com.example.identityService.dto.PageResponse;
 import com.example.identityService.dto.request.OrderItemRequest;
-import com.example.identityService.entity.Address;
-import com.example.identityService.entity.Order;
-import com.example.identityService.entity.OrderItem;
-import com.example.identityService.entity.Product;
+import com.example.identityService.entity.*;
 import com.example.identityService.exception.AppException;
 import com.example.identityService.exception.ErrorCode;
 import com.example.identityService.repository.*;
@@ -15,7 +12,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +33,7 @@ public class OrderServiceImpl implements OrderService {
     OrderItemRepository orderItemRepository;
     UserRepository userRepository;
     AddressRepository addressRepository;
+    NotificationRepository notificationRepository;
 
     @Override
     @Cacheable(value = "allOrder", key = "#page"+ '-' + "#size")
@@ -105,6 +102,13 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderItems(orderItems);
         order.setTotalAmount(totalAmount);
         order.setDelivery(false);
+
+        Notification notification = Notification.builder()
+                .user(userRepository.findByUsername("admin"))
+                .message("Ban co mot don hang moi can xac nhan")
+                .read(false)
+                .build();
+        notificationRepository.save(notification);
 
         return orderRepository.save(order);
     }

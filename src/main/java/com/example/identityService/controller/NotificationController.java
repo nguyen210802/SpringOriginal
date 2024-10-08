@@ -34,7 +34,7 @@ public class NotificationController {
                         .build());
     }
 
-    @GetMapping("/users/notifications")
+    @GetMapping("/notifications")
     public ApiResponse<PageResponse<Notification>> getAllByUser(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -43,14 +43,14 @@ public class NotificationController {
                 .build();
     }
 
-    @GetMapping("/users/notifications/countReadFalse")
+    @GetMapping("/notifications/countReadFalse")
     public ApiResponse<Long> getNotificationReadFalse(){
         return ApiResponse.<Long>builder()
                 .result(notificationServiceImpl.NotificationCount())
                 .build();
     }
 
-    @PutMapping("/users/notifications/read")
+    @PutMapping("/notifications/read")
     public ApiResponse<Notification> readNotification(@RequestBody String notificationId){
         return ApiResponse.<Notification>builder()
                .result(notificationServiceImpl.readNotification(notificationId))

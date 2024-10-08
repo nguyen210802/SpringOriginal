@@ -34,8 +34,11 @@ public class WebSecurityConfig {
     String[] PUBLIC_POST = {"/users/registration",
             "/auth/login",
             "/auth/introspect",
+            "/auth/loginWithGoogle",
+            "/auth/refresh-token",
             "/users/confirmOtpAndCreateUser",
-            "/auth/loginWithGoogle"};
+            "otp/generate",
+            "otp/validate"};
     String[] PUBLIC_GET = {"/users/product",
             "/users/product/getAll",
             "/users/product/comment/getAllByProduct",
@@ -53,9 +56,6 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((request) -> request
                     .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
-                    .requestMatchers(PUBLIC_GET).permitAll()
-                    .requestMatchers(HttpMethod.POST, "otp/generate").permitAll()
-                    .requestMatchers(HttpMethod.POST, "otp/validate").permitAll()
                     .requestMatchers(PUBLIC_GET).permitAll()
                     .requestMatchers("/OriginShop/login").permitAll()
                     .requestMatchers("/oauth2/authorization/google").permitAll()

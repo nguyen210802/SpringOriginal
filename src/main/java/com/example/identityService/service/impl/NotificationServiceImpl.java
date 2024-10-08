@@ -37,7 +37,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendEmail(SendEmailRequest request) {
-//        Email email = Email.builder().email("nguyen1@yopmail.com").name("Nguyen").build();
         EmailRequest emailRequest = EmailRequest.builder()
                 .sender(Email.builder()
                         .email("blackgenshin123@gmail.com")

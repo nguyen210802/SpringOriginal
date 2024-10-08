@@ -5,6 +5,7 @@ import com.example.identityService.dto.request.AuthenticationRequest;
 import com.example.identityService.dto.request.IntrospectRequest;
 import com.example.identityService.dto.response.AuthenticationResponse;
 import com.example.identityService.dto.response.IntrospectResponse;
+import com.example.identityService.dto.response.RefreshTokenRequest;
 import com.example.identityService.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
@@ -48,6 +49,13 @@ public class AuthenticationController {
         log.info("introspect: {}", request);
         return ApiResponse.<IntrospectResponse>builder()
                 .result(map.get("auth").introspect(request))
+                .build();
+    }
+
+    @PostMapping("/refresh-token")
+    public ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(map.get("auth").refreshToken(request))
                 .build();
     }
 }

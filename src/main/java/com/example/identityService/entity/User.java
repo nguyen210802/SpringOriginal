@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -40,7 +39,7 @@ public class User {
 
     LocalDate dob;
 
-    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
     List<Address> address;
 
@@ -48,15 +47,15 @@ public class User {
     @JsonIgnore
     Cart cart;
 
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
     List<Product> products;
 
-    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
     List<Order> orders;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
     List<Notification> notifications;
 
